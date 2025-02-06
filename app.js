@@ -1,4 +1,4 @@
-//
+// live url: https://hng-task-2-murex.vercel.app/api/classify-number?number="pass in any number of your choice"
 const express = require("express");
 const cors = require("cors");
 const axios = require("axios");
@@ -28,6 +28,13 @@ const isPerfect = (num) => {
     return sum === num && num !== 1;
 };
 
+/**
+ * Checks if a given number is an Armstrong number.
+ * An Armstrong number (also known as a narcissistic number) is a number that is equal to the sum of its own digits each raised to the power of the number of digits.
+ *
+ * @param {number} num - The number to check.
+ * @returns {boolean} - Returns true if the number is an Armstrong number, otherwise false.
+ */
 const isArmstrong = (num) => {
     let sum = 0;
     let digits = num.toString().split("").map(Number);
