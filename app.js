@@ -36,17 +36,34 @@ const isPerfect = (num) => {
  * @returns {boolean} - Returns true if the number is an Armstrong number, otherwise false.
  */
 const isArmstrong = (num) => {
-    const absNum = Math.abs(num); // Ignore negative sign for Armstrong check
-    let sum = 0;
-    let digits = absNum.toString().split("").map(Number);
-    let power = digits.length;
-    digits.forEach(digit => sum += Math.pow(digit, power));
+    let absNum = Math.abs(num); // Ignore negative sign for Armstrong check
+    let sum = 0, temp = absNum, power = 0;
+
+    // Determine the number of digits
+    while (temp > 0) {
+        temp = Math.floor(temp / 10);
+        power++;
+    }
+
+    // Reset temp and calculate Armstrong sum
+    temp = absNum;
+    while (temp > 0) {
+        sum += Math.pow(temp % 10, power); // Extract last digit and raise to power
+        temp = Math.floor(temp / 10); // Remove last digit
+    }
+
     return sum === absNum;
 };
 
 // Calculate sum of digits (Ignoring the negative sign)
 const digitSum = (num) => {
-    return Math.abs(num).toString().split("").map(Number).reduce((a, b) => a + b, 0);
+    let sum = 0;
+    num = Math.abs(num);
+    while (num > 0) {
+        sum += num % 10; // Extract last digit and add to sum
+        num = Math.floor(num / 10); // Remove last digit
+    }
+    return sum;
 };
 
 // API Endpoint
@@ -73,7 +90,7 @@ app.get("/api/classify-number", async (req, res) => {
             is_perfect: isPerfect(num),
             properties,
             digit_sum: digitSum(num),
-            fun_fact: funFact
+            fun_fact: await funFact
         });
     } catch (error) {
         res.status(500).json({ error: "Could not fetch fun fact." });
