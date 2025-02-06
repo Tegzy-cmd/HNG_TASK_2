@@ -51,7 +51,7 @@ const digitSum = (num) => {
 
 // API Endpoint
 app.get("/api/classify-number", async (req, res) => {
-    const number  = req.query.number; // Get number from query 
+    const number = req.params.number; // Get number param
     const num = parseInt(number, 10); // Convert number to integer
     
     if (isNaN(num)) {
