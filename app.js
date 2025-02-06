@@ -36,14 +36,18 @@ const isPerfect = (num) => {
  * @returns {boolean} - Returns true if the number is an Armstrong number, otherwise false.
  */
 const isArmstrong = (num) => {
+    if (num < 0) return false; // Armstrong numbers are non-negative
     let sum = 0;
-    let digits = num.toString().split("").map(Number);
+    let digits = Math.abs(num).toString().split("").map(Number); 
     let power = digits.length;
     digits.forEach(digit => sum += Math.pow(digit, power));
     return sum === num;
 };
 
-const digitSum = (num) => num.toString().split("").map(Number).reduce((a, b) => a + b, 0);
+// Sum of digits (handling negative numbers)
+const digitSum = (num) => {
+    return Math.abs(num).toString().split("").map(Number).reduce((a, b) => a + b, 0);
+};
 
 // API Endpoint
 app.get("/api/classify-number", async (req, res) => {
