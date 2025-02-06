@@ -36,15 +36,15 @@ const isPerfect = (num) => {
  * @returns {boolean} - Returns true if the number is an Armstrong number, otherwise false.
  */
 const isArmstrong = (num) => {
-    if (num < 0) return false; // Armstrong numbers are non-negative
+    const absNum = Math.abs(num); // Ignore negative sign for Armstrong check
     let sum = 0;
-    let digits = Math.abs(num).toString().split("").map(Number); 
+    let digits = absNum.toString().split("").map(Number);
     let power = digits.length;
     digits.forEach(digit => sum += Math.pow(digit, power));
-    return sum === num;
+    return sum === absNum;
 };
 
-// Sum of digits (handling negative numbers)
+// Calculate sum of digits (Ignoring the negative sign)
 const digitSum = (num) => {
     return Math.abs(num).toString().split("").map(Number).reduce((a, b) => a + b, 0);
 };
