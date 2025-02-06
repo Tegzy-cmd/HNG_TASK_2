@@ -1,88 +1,71 @@
-// live url: https://hng-task-2-murex.vercel.app/api/classify-number?number="pass in any number of your choice"
 const express = require("express");
 const cors = require("cors");
 const axios = require("axios");
 require("dotenv").config();
 
 const app = express();
-// Port
 const PORT = process.env.PORT || 8080;
 
-//Middleware
 app.use(cors());
 
-// Parity functions
+// Prime Number Check
 const isPrime = (num) => {
     if (num < 2) return false;
-    for (let i = 2; i <= Math.sqrt(num); i++) {
+    for (let i = 2, sqrt = Math.sqrt(num); i <= sqrt; i++) {
         if (num % i === 0) return false;
     }
     return true;
 };
 
+// Perfect Number Check
 const isPerfect = (num) => {
-    let sum = 1;
-    for (let i = 2; i <= num / 2; i++) {
-        if (num % i === 0) sum += i;
+    if (num < 2) return false;
+    let sum = 1, sqrt = Math.sqrt(num);
+    for (let i = 2; i <= sqrt; i++) {
+        if (num % i === 0) sum += i + (i !== num / i ? num / i : 0);
     }
-    return sum === num && num !== 1;
+    return sum === num;
 };
 
-/**
- * Checks if a given number is an Armstrong number.
- * An Armstrong number (also known as a narcissistic number) is a number that is equal to the sum of its own digits each raised to the power of the number of digits.
- *
- * @param {number} num - The number to check.
- * @returns {boolean} - Returns true if the number is an Armstrong number, otherwise false.
- */
+// Armstrong Number Check (Optimized)
 const isArmstrong = (num) => {
-    let absNum = Math.abs(num); // Ignore negative sign for Armstrong check
-    let sum = 0, temp = absNum, power = 0;
-
-    // Determine the number of digits
+    let absNum = Math.abs(num), sum = 0, temp = absNum, power = Math.floor(Math.log10(absNum)) + 1;
     while (temp > 0) {
+        sum += Math.pow(temp % 10, power);
         temp = Math.floor(temp / 10);
-        power++;
     }
-
-    // Reset temp and calculate Armstrong sum
-    temp = absNum;
-    while (temp > 0) {
-        sum += Math.pow(temp % 10, power); // Extract last digit and raise to power
-        temp = Math.floor(temp / 10); // Remove last digit
-    }
-
     return sum === absNum;
 };
 
-// Calculate sum of digits (Ignoring the negative sign)
+// Sum of Digits Calculation (Optimized)
 const digitSum = (num) => {
     let sum = 0;
     num = Math.abs(num);
     while (num > 0) {
-        sum += num % 10; // Extract last digit and add to sum
-        num = Math.floor(num / 10); // Remove last digit
+        sum += num % 10;
+        num = Math.floor(num / 10);
     }
     return sum;
 };
 
 // API Endpoint
 app.get("/api/classify-number", async (req, res) => {
-    const number = req.query.number; // Get number param
-    const num = parseInt(number, 10); // Convert number to integer
-    
+    const number = req.query.number;
+    const num = parseInt(number, 10);
+
     if (isNaN(num)) {
-        return res.status(400).json({error: true, number });
+        return res.status(400).json({ error: true, number });
     }
 
     const properties = [];
     if (isArmstrong(num)) properties.push("armstrong");
-    if (num % 2 === 0) properties.push("even");
-    else properties.push("odd");
+    properties.push(num % 2 === 0 ? "even" : "odd");
 
     try {
-        const fetchFact = await axios.get(`http://numbersapi.com/${num}/math`);
-        const funFact = fetchFact.data;
+        // Fetch fun fact in parallel with number classification
+        const [funFactResponse] = await Promise.all([
+            axios.get(`http://numbersapi.com/${num}/math`)
+        ]);
 
         res.json({
             number: num,
@@ -90,7 +73,7 @@ app.get("/api/classify-number", async (req, res) => {
             is_perfect: isPerfect(num),
             properties,
             digit_sum: digitSum(num),
-            fun_fact: await funFact
+            fun_fact: funFactResponse.data
         });
     } catch (error) {
         res.status(500).json({ error: "Could not fetch fun fact." });
@@ -98,5 +81,5 @@ app.get("/api/classify-number", async (req, res) => {
 });
 
 app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
+    console.log(`Server is running on port ${PORT}`);
 });
